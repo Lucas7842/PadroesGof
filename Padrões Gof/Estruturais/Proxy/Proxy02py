@@ -1,0 +1,81 @@
+# Subsistema de autenticação
+class SistemaAutenticacao:
+    def autenticar(self, usuario, senha):
+        if usuario == "usuário" and senha == "senha":
+            print("Autenticação bem-sucedida.")
+            return True
+        else:
+            print("Autenticação falhou.")
+            return False
+
+# Proxy para o subsistema real de autenticação
+class ProxyAutenticacao:
+    def __init__(self):
+        self.sistemareal = SistemaAutenticacao()
+
+    def executar(self, usuario, senha):
+        print("Antes da autenticação")
+        resultado = self.sistemareal.autenticar(usuario, senha)
+        print("Depois da autenticação")
+        return resultado
+
+# Subsistema de cadastro
+class SistemaCadastro:
+    def cadastrarUsuario(self, usuario, senha):
+        print(f"Usuário {usuario} cadastrado com sucesso.")
+
+# Subsistema de pedidos
+class SistemaPedidos:
+    def fazerPedido(self, produtos, destinatario):
+        produtos_str = ', '.join([produto['nome'] for produto in produtos])
+        print(f"Pedidos {produtos_str}, realizados para {destinatario}.")
+
+# Subsistema de pagamento
+class SistemaPagamento:
+    def processamentoPagamento(self, precos, destinatario):
+        precos_str = ', '.join([f'R${preco:.2f}' for preco in precos])
+        print(f"Processamento de pagamento nos valores {precos_str}: Pedido enviado para {destinatario}")
+
+# Fachada
+class LojaOnline:
+    def __init__(self):
+        self.autenticacao = ProxyAutenticacao()
+        self.cadastro = SistemaCadastro()
+        self.pedidos = SistemaPedidos()
+        self.pagamento = SistemaPagamento()
+
+# Cliente - Exemplo de uso
+class AtendimentoCliente:
+    def __init__(self):
+        self.loja = LojaOnline()
+
+    def atendimentoCliente(self, usuario, senha, produtos, destinatario):
+        if self.loja.autenticacao.executar(usuario, senha):
+            self.loja.cadastro.cadastrarUsuario(usuario, senha)
+            self.loja.pedidos.fazerPedido(produtos, destinatario)
+            self.loja.pagamento.processamentoPagamento([produto['preco'] for produto in produtos], destinatario)
+        else:
+            print("Falha na autenticação. Não é possível continuar.")
+
+cliente = AtendimentoCliente()
+
+usuario = "usuário"
+senha = "senha"
+
+produtos = [
+    {
+        'nome': 'Iphone',
+        'preco': 4800.00,
+    },
+    {
+        'nome': 'TV',
+        'preco': 1500.00,
+    },
+    {
+        'nome': 'Ventilador',
+        'preco': 800.00,
+    }
+]
+destinatario = "Gladriel245@hotmail.com"
+
+cliente.atendimentoCliente(usuario, senha, produtos, destinatario)
